@@ -1,0 +1,63 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "E-REDES Account",
+        "description": "Enter your E-REDES Balcao Digital session cookie and CPE code.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Network tab, select any request\n4. Copy the full 'Cookie' header value",
+        "data": {
+          "session_cookie": "Session Cookie",
+          "cpe": "CPE Code"
+        },
+        "data_description": {
+          "session_cookie": "The full Cookie header from your browser (includes PHPSESSID, aat, SimpleSAML)",
+          "cpe": "Your electricity meter CPE code (e.g., PT0002000012345678XX)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate with E-REDES",
+        "description": "Your E-REDES session has expired. Please enter a new session cookie for CPE {cpe}.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Network tab, select any request\n4. Copy the full 'Cookie' header value",
+        "data": {
+          "session_cookie": "Session Cookie"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure E-REDES",
+        "description": "Update your E-REDES configuration.",
+        "data": {
+          "session_cookie": "Session Cookie",
+          "cpe": "CPE Code"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid or expired session",
+      "cannot_connect": "Cannot connect to E-REDES",
+      "unknown": "An unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "This CPE is already configured",
+      "reauth_successful": "Re-authentication successful",
+      "reconfigure_successful": "Reconfiguration successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "E-REDES Options"
+      }
+    },
+    "abort": {
+      "no_options": "No options available for this integration"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "energy": {
+        "name": "Daily Energy"
+      },
+      "power": {
+        "name": "Power"
+      }
+    }
+  }
+}
