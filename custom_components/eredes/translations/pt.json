@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Conta E-REDES",
+        "description": "Introduza o token e codigo CPE do Balcao Digital E-REDES.\n\nPara obter o token:\n1. Aceda a balcaodigital.e-redes.pt\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
+        "data": {
+          "aat_token": "Token AAT",
+          "cpe": "Codigo CPE"
+        },
+        "data_description": {
+          "aat_token": "O valor do cookie 'aat' da sua sessao no browser",
+          "cpe": "O codigo CPE do seu contador (ex: PT0002000012345678XX)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-autenticar com E-REDES",
+        "description": "A sua sessao E-REDES expirou. Por favor introduza um novo token para o CPE {cpe}.\n\nPara obter o token:\n1. Aceda a balcaodigital.e-redes.pt\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
+        "data": {
+          "aat_token": "Token AAT"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigurar E-REDES",
+        "description": "Atualize a sua configuracao E-REDES.",
+        "data": {
+          "aat_token": "Token AAT",
+          "cpe": "Codigo CPE"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Token invalido ou expirado",
+      "cannot_connect": "Nao foi possivel ligar ao E-REDES",
+      "unknown": "Ocorreu um erro inesperado"
+    },
+    "abort": {
+      "already_configured": "Este CPE ja esta configurado",
+      "reauth_successful": "Re-autenticacao bem sucedida",
+      "reconfigure_successful": "Reconfiguracao bem sucedida"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcoes E-REDES"
+      }
+    },
+    "abort": {
+      "no_options": "Nao existem opcoes disponiveis para esta integracao"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "energy_total": {
+        "name": "Energia Total"
+      },
+      "energy_today": {
+        "name": "Energia Hoje"
+      },
+      "energy_yesterday": {
+        "name": "Energia Ontem"
+      },
+      "power_current": {
+        "name": "Potencia Atual"
+      }
+    }
+  }
+}

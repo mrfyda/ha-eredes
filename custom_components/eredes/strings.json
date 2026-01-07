@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "E-REDES Account",
+        "description": "Enter your E-REDES Balcao Digital token and CPE code.\n\nTo get your token:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies\n4. Copy the 'aat' cookie value",
+        "data": {
+          "aat_token": "AAT Token",
+          "cpe": "CPE Code"
+        },
+        "data_description": {
+          "aat_token": "The 'aat' cookie value from your browser session",
+          "cpe": "Your electricity meter CPE code (e.g., PT0002000012345678XX)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate with E-REDES",
+        "description": "Your E-REDES session has expired. Please enter a new token for CPE {cpe}.\n\nTo get your token:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies\n4. Copy the 'aat' cookie value",
+        "data": {
+          "aat_token": "AAT Token"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure E-REDES",
+        "description": "Update your E-REDES configuration.",
+        "data": {
+          "aat_token": "AAT Token",
+          "cpe": "CPE Code"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid or expired token",
+      "cannot_connect": "Cannot connect to E-REDES",
+      "unknown": "An unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "This CPE is already configured",
+      "reauth_successful": "Re-authentication successful",
+      "reconfigure_successful": "Reconfiguration successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "E-REDES Options"
+      }
+    },
+    "abort": {
+      "no_options": "No options available for this integration"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "energy_total": {
+        "name": "Total Energy"
+      },
+      "energy_today": {
+        "name": "Energy Today"
+      },
+      "energy_yesterday": {
+        "name": "Energy Yesterday"
+      },
+      "power_current": {
+        "name": "Current Power"
+      }
+    }
+  }
+}
