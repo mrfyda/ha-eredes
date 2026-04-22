@@ -1,5 +1,5 @@
 # Home Assistant core
-homeassistant>=2024.1.0
+homeassistant>=2025.1.4
 
 # Testing
 pytest>=8.0.0
