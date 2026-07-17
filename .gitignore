@@ -80,8 +80,5 @@ dmypy.json
 # macOS
 .DS_Store
 
-# Claude Code
-.claude/
-
 # uv lock file
 uv.lock
