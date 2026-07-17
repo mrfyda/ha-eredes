@@ -19,3 +19,13 @@ updates:
       python-dependencies:
         patterns:
           - "*"
+    ignore:
+      # These are exact-pinned (==) by pytest-homeassistant-custom-component to
+      # match its HA test snapshot. Bumping any of them independently causes a
+      # ResolutionImpossible conflict, so let that package drive them. Bump
+      # pytest-homeassistant-custom-component to move the whole test stack.
+      - dependency-name: "homeassistant"
+      - dependency-name: "pytest"
+      - dependency-name: "pytest-asyncio"
+      - dependency-name: "pytest-cov"
+      - dependency-name: "coverage"

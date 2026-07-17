@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "E-REDES Account",
-        "description": "Enter your E-REDES Balcao Digital session cookie and CPE code.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > https://balcaodigital.e-redes.pt\n4. Copy the value of the 'aat' cookie",
+        "description": "Enter your E-REDES Balcao Digital session cookie and CPE code.\n\nTo get your session cookie:\n1. Log into {setup_url}\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > {setup_url}\n4. Copy the value of the 'aat' cookie",
         "data": {
           "session_cookie": "Session Cookie",
           "cpe": "CPE Code"
@@ -15,7 +15,7 @@
       },
       "reauth_confirm": {
         "title": "Re-authenticate with E-REDES",
-        "description": "Your E-REDES session has expired. Please enter a new session cookie for CPE {cpe}.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > https://balcaodigital.e-redes.pt\n4. Copy the value of the 'aat' cookie",
+        "description": "Your E-REDES session has expired. Please enter a new session cookie for CPE {cpe}.\n\nTo get your session cookie:\n1. Log into {setup_url}\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > {setup_url}\n4. Copy the value of the 'aat' cookie",
         "data": {
           "session_cookie": "Session Cookie"
         }
