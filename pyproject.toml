@@ -4,10 +4,10 @@ version = "1.0.0"
 description = "E-REDES integration for Home Assistant"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 line-length = 88
 
 [tool.ruff.lint]
