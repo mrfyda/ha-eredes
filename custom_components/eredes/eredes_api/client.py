@@ -32,13 +32,36 @@ class ERedesClient:
 
         Args:
             session: aiohttp ClientSession
-            session_cookie: Full cookie string from browser
-                           (e.g., "PHPSESSID=xxx; aat=xxx; SimpleSAML=xxx")
+            session_cookie: The pasted authentication value. Any of these
+                shapes are accepted and treated identically:
+                - a bare ``aat`` token value (``eyJ...``)
+                - a prefixed pair (``aat=eyJ...``)
+                - a full Cookie header
+                  (``PHPSESSID=xxx; aat=xxx; SimpleSAML=xxx``)
         """
         self._session = session
-        self._session_cookie = session_cookie
-        self._cookies = self._parse_cookies(session_cookie)
+        self._apply_session_cookie(session_cookie)
+
+    def _apply_session_cookie(self, session_cookie: str) -> None:
+        """Normalize the pasted value and derive the cookies, token and header."""
+        self._cookies = self._normalize_cookies(session_cookie)
         self._aat_token = self._cookies.get("aat", "")
+        self._session_cookie = self._build_cookie_header(self._cookies)
+
+    def _normalize_cookies(self, session_cookie: str) -> dict[str, str]:
+        """Normalize a pasted authentication value into a cookies dict.
+
+        The input is trimmed and parsed as a Cookie header. A bare token value
+        contains no ``key=value`` pair, so parsing yields no ``aat`` key; in
+        that case the whole trimmed input is treated as the ``aat`` token.
+        """
+        stripped = session_cookie.strip()
+        cookies = self._parse_cookies(stripped)
+        if "aat" not in cookies:
+            bare = stripped.rstrip(";").strip()
+            if bare:
+                cookies["aat"] = bare
+        return cookies
 
     def _parse_cookies(self, cookie_string: str) -> dict[str, str]:
         """Parse a cookie string into a dictionary."""
@@ -49,11 +72,14 @@ class ERedesClient:
             cookies[key] = morsel.value
         return cookies
 
+    @staticmethod
+    def _build_cookie_header(cookies: dict[str, str]) -> str:
+        """Serialize a cookies dict into a Cookie request header."""
+        return "; ".join(f"{k}={v}" for k, v in cookies.items())
+
     def update_session_cookie(self, session_cookie: str) -> None:
         """Update the session cookie."""
-        self._session_cookie = session_cookie
-        self._cookies = self._parse_cookies(session_cookie)
-        self._aat_token = self._cookies.get("aat", "")
+        self._apply_session_cookie(session_cookie)
 
     async def validate_token(self, cpe: str) -> bool:
         """Validate the token by making a simple API call.
@@ -174,10 +200,7 @@ class ERedesClient:
                 old_phpsessid = self._cookies.get("PHPSESSID", "")
                 if new_phpsessid != old_phpsessid:
                     self._cookies["PHPSESSID"] = new_phpsessid
-                    # Rebuild cookie string
-                    self._session_cookie = "; ".join(
-                        f"{k}={v}" for k, v in self._cookies.items()
-                    )
+                    self._session_cookie = self._build_cookie_header(self._cookies)
                     _LOGGER.debug("Session refreshed with new PHPSESSID")
 
     def _parse_consumption_response(

@@ -56,7 +56,7 @@ This integration requires a session token from the E-REDES portal. Due to CAPTCH
 2. Click **Add Integration**
 3. Search for "E-REDES"
 4. Enter your configuration:
-   - **AAT Token**: The `aat` cookie value from your browser
+   - **Session Cookie**: The value of the `aat` cookie from your browser (the full Cookie header is also accepted)
    - **CPE Code**: Your electricity meter CPE code (e.g., `PT0002000012345678AB`)
 
 ### Token Expiration
