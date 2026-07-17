@@ -1,16 +1,13 @@
-# Home Assistant core
 # CI runs on Python 3.14. Home Assistant >=2026.7 requires Python >=3.14.2.
-homeassistant>=2026.7.2
-
-# Testing
-pytest>=9.1.1
-pytest-asyncio>=1.4.0
-pytest-cov>=7.1.0
+#
+# The entire Home Assistant test stack — homeassistant, pytest, pytest-asyncio,
+# pytest-cov, coverage, etc. — is exact-pinned (==) by
+# pytest-homeassistant-custom-component to match a specific HA release. Do NOT
+# list those packages here: pinning them independently produces a
+# ResolutionImpossible conflict. Bump this single package to move the whole
+# stack to a newer HA version. (See the Dependabot ignore list in dependabot.yml.)
 pytest-homeassistant-custom-component>=0.13.346
 
-# Linting and type checking
+# Linting and type checking — not part of the HA test snapshot, so ours to bump.
 ruff>=0.15.22
 mypy>=2.3.0
-
-# Coverage
-coverage>=7.15.2
