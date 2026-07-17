@@ -4,10 +4,10 @@ version = "1.0.0"
 description = "E-REDES integration for Home Assistant"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py314"
 line-length = 88
 
 [tool.ruff.lint]
@@ -36,7 +36,7 @@ ignore = [
 known-first-party = ["custom_components.eredes"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 strict = true
 warn_unreachable = true
 show_error_codes = true

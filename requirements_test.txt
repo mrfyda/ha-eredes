@@ -1,18 +1,16 @@
 # Home Assistant core
-# NOTE: CI runs on Python 3.13. Home Assistant >=2026.3 and
-# pytest-homeassistant-custom-component >=0.13.317 require Python >=3.14,
-# so the versions below are the newest that resolve on 3.13.
+# CI runs on Python 3.14. Home Assistant >=2026.7 requires Python >=3.14.2.
 homeassistant>=2025.11.0
 
 # Testing
-pytest>=9.0.0
-pytest-asyncio>=1.3.0
-pytest-cov>=7.0.0
-pytest-homeassistant-custom-component>=0.13.316
+pytest>=9.0.3
+pytest-asyncio>=1.4.0
+pytest-cov>=7.1.0
+pytest-homeassistant-custom-component>=0.13.346
 
 # Linting and type checking
 ruff>=0.15.22
 mypy>=2.3.0
 
 # Coverage
-coverage>=7.10.6
+coverage>=7.14.1

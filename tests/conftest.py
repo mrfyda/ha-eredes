@@ -1,7 +1,9 @@
 """Fixtures for E-REDES tests."""
 
-from collections.abc import Generator
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -11,6 +13,9 @@ from custom_components.eredes.eredes_api.models import (
     ConsumptionData,
     ConsumptionReading,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 @pytest.fixture(autouse=True)
