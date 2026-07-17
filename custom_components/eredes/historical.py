@@ -41,7 +41,7 @@ async def async_import_historical_data(
 ) -> None:
     """Import historical energy data from E-REDES.
 
-    This function fetches up to 2 years of historical consumption data
+    This function fetches up to 1 year of historical consumption data
     and imports it into Home Assistant's long-term statistics.
     """
     # Use the sensor's statistic ID so history appears with the sensor
@@ -62,7 +62,7 @@ async def async_import_historical_data(
         {"sum"},
     )
 
-    # Always import from 2 years ago to ensure we have full history
+    # Always import from the start of the history window to ensure full coverage
     # The API will just return empty for periods we already have
     start_date = datetime.now() - timedelta(days=TOTAL_HISTORY_DAYS)
 

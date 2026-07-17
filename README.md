@@ -9,19 +9,21 @@ A Home Assistant custom integration to fetch energy consumption data from [E-RED
 ## Features
 
 - Fetches 15-minute interval energy consumption data
-- Imports up to 2 years of historical data
+- Imports up to 1 year of historical data
 - Compatible with Home Assistant's Energy Dashboard
 - Automatic re-authentication flow when token expires
 - Multi-language support (English, Portuguese)
 
 ## Sensors
 
-| Sensor | Description | Unit |
-|--------|-------------|------|
-| `sensor.eredes_energy_total` | Cumulative energy consumption | kWh |
-| `sensor.eredes_energy_today` | Energy consumed today | kWh |
-| `sensor.eredes_energy_yesterday` | Energy consumed yesterday | kWh |
-| `sensor.eredes_power_current` | Current power (15-min average) | W |
+The integration creates one device per meter (`E-REDES Meter <CPE suffix>`) with two
+entities. Entity IDs are derived from the device name, e.g. for a meter whose CPE ends
+in `...MY`:
+
+| Sensor | Example entity ID | Description | Unit |
+|--------|-------------------|-------------|------|
+| Daily Energy | `sensor.e_redes_meter_my_daily_energy` | Total consumption for the most recent complete day. Because E-REDES publishes data with a ~24h delay, this reflects **yesterday's** total. This entity also carries the imported long-term statistics used by the Energy Dashboard. | kWh |
+| Power | `sensor.e_redes_meter_my_power` | Average power over the most recent 15-minute interval (derived from that interval's energy). | W |
 
 ## Installation
 
@@ -70,11 +72,13 @@ The token will expire after some time (typically when you log out or after exten
 
 ## Energy Dashboard Setup
 
-After installation, add the integration to your Energy Dashboard:
+On first setup the integration imports up to a year of historical consumption into
+Home Assistant's long-term statistics, attached to the **Daily Energy** sensor. Add that
+sensor to your Energy Dashboard:
 
 1. Go to **Settings** > **Dashboards** > **Energy**
 2. Under "Grid consumption", click **Add consumption**
-3. Select `sensor.eredes_energy_total`
+3. Select the Daily Energy sensor (e.g. `sensor.e_redes_meter_my_daily_energy`)
 
 ## Known Limitations
 
@@ -82,7 +86,7 @@ After installation, add the integration to your Energy Dashboard:
 |------------|-------------|
 | Manual token | Due to CAPTCHA, tokens must be obtained manually from browser |
 | Token expiry | Token expires and requires periodic manual refresh |
-| Data delay | E-REDES data is typically 1-2 hours behind real-time |
+| Data delay | E-REDES publishes consumption with roughly a 24h delay, so sensors reflect the previous day rather than real-time |
 | Resolution | Data is provided in 15-minute intervals only |
 | Real-time | For real-time monitoring, use a dedicated energy monitor (e.g., Shelly) |
 
@@ -100,7 +104,7 @@ If you see a token error:
 
 If sensors show "Unknown" or no data:
 
-1. E-REDES may have a delay in processing data (wait 1-2 hours)
+1. E-REDES publishes data with a ~24h delay, so the most recent full day may take up to a day to appear
 2. Check the integration logs for errors
 3. Verify your CPE code is correct
 

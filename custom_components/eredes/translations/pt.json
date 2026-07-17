@@ -52,17 +52,11 @@
   },
   "entity": {
     "sensor": {
-      "energy_total": {
-        "name": "Energia Total"
+      "energy": {
+        "name": "Energia Diaria"
       },
-      "energy_today": {
-        "name": "Energia Hoje"
-      },
-      "energy_yesterday": {
-        "name": "Energia Ontem"
-      },
-      "power_current": {
-        "name": "Potencia Atual"
+      "power": {
+        "name": "Potencia"
       }
     }
   }
