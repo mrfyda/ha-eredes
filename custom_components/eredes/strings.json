@@ -3,19 +3,19 @@
     "step": {
       "user": {
         "title": "E-REDES Account",
-        "description": "Enter your E-REDES Balcao Digital session cookie and CPE code.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Network tab, select any request\n4. Copy the full 'Cookie' header value",
+        "description": "Enter your E-REDES Balcao Digital session cookie and CPE code.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > https://balcaodigital.e-redes.pt\n4. Copy the value of the 'aat' cookie",
         "data": {
           "session_cookie": "Session Cookie",
           "cpe": "CPE Code"
         },
         "data_description": {
-          "session_cookie": "The full Cookie header from your browser (includes PHPSESSID, aat, SimpleSAML)",
+          "session_cookie": "The value of the 'aat' cookie from your browser. The full Cookie header is also accepted.",
           "cpe": "Your electricity meter CPE code (e.g., PT0002000012345678XX)"
         }
       },
       "reauth_confirm": {
         "title": "Re-authenticate with E-REDES",
-        "description": "Your E-REDES session has expired. Please enter a new session cookie for CPE {cpe}.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Network tab, select any request\n4. Copy the full 'Cookie' header value",
+        "description": "Your E-REDES session has expired. Please enter a new session cookie for CPE {cpe}.\n\nTo get your session cookie:\n1. Log into balcaodigital.e-redes.pt\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > https://balcaodigital.e-redes.pt\n4. Copy the value of the 'aat' cookie",
         "data": {
           "session_cookie": "Session Cookie"
         }
