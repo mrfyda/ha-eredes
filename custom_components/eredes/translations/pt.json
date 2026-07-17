@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Conta E-REDES",
-        "description": "Introduza o token e codigo CPE do Balcao Digital E-REDES.\n\nPara obter o token:\n1. Aceda a balcaodigital.e-redes.pt\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
+        "description": "Introduza o token e codigo CPE do Balcao Digital E-REDES.\n\nPara obter o token:\n1. Aceda a {setup_url}\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
         "data": {
           "aat_token": "Token AAT",
           "cpe": "Codigo CPE"
@@ -15,7 +15,7 @@
       },
       "reauth_confirm": {
         "title": "Re-autenticar com E-REDES",
-        "description": "A sua sessao E-REDES expirou. Por favor introduza um novo token para o CPE {cpe}.\n\nPara obter o token:\n1. Aceda a balcaodigital.e-redes.pt\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
+        "description": "A sua sessao E-REDES expirou. Por favor introduza um novo token para o CPE {cpe}.\n\nPara obter o token:\n1. Aceda a {setup_url}\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
         "data": {
           "aat_token": "Token AAT"
         }

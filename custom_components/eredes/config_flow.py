@@ -15,7 +15,7 @@ from homeassistant.config_entries import (
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CONF_CPE, CONF_SESSION_COOKIE, DOMAIN
+from .const import BASE_URL, CONF_CPE, CONF_SESSION_COOKIE, DOMAIN
 from .eredes_api import ERedesAuthenticationError, ERedesClient, ERedesConnectionError
 
 _LOGGER = logging.getLogger(__name__)
@@ -65,6 +65,7 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
+            description_placeholders={"setup_url": BASE_URL},
         )
 
     async def async_step_reauth(self, _entry_data: dict[str, Any]) -> ConfigFlowResult:
@@ -111,6 +112,7 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={
                 "cpe": self._reauth_entry.data[CONF_CPE] if self._reauth_entry else "",
+                "setup_url": BASE_URL,
             },
         )
 
