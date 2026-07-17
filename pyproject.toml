@@ -36,7 +36,7 @@ ignore = [
 known-first-party = ["custom_components.eredes"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 strict = true
 warn_unreachable = true
 show_error_codes = true

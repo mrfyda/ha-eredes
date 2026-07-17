@@ -43,7 +43,7 @@ class ERedesClient:
     def _parse_cookies(self, cookie_string: str) -> dict[str, str]:
         """Parse a cookie string into a dictionary."""
         cookies: dict[str, str] = {}
-        simple_cookie: SimpleCookie[str] = SimpleCookie()
+        simple_cookie = SimpleCookie()
         simple_cookie.load(cookie_string)
         for key, morsel in simple_cookie.items():
             cookies[key] = morsel.value
