@@ -3,34 +3,34 @@
     "step": {
       "user": {
         "title": "E-REDES Account",
-        "description": "Enter your E-REDES Balcao Digital session cookie and CPE code.\n\nTo get your session cookie:\n1. Log into {setup_url}\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > {setup_url}\n4. Copy the value of the 'aat' cookie",
+        "description": "Enter your E-REDES Balcao Digital access token and CPE code.\n\nTo get your access token:\n1. Log into {setup_url}\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > {setup_url}\n4. Copy the value of the 'aat' cookie",
         "data": {
-          "session_cookie": "Session Cookie",
+          "access_token": "Access Token (aat)",
           "cpe": "CPE Code"
         },
         "data_description": {
-          "session_cookie": "The value of the 'aat' cookie from your browser. The full Cookie header is also accepted.",
+          "access_token": "The value of the 'aat' cookie from your browser. The full Cookie header is also accepted.",
           "cpe": "Your electricity meter CPE code (e.g., PT0002000012345678XX)"
         }
       },
       "reauth_confirm": {
         "title": "Re-authenticate with E-REDES",
-        "description": "Your E-REDES session has expired. Please enter a new session cookie for CPE {cpe}.\n\nTo get your session cookie:\n1. Log into {setup_url}\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > {setup_url}\n4. Copy the value of the 'aat' cookie",
+        "description": "Your E-REDES access token has expired. Please enter a new one for CPE {cpe}.\n\nTo get your access token:\n1. Log into {setup_url}\n2. Open browser dev tools (F12)\n3. Go to Application > Cookies > {setup_url}\n4. Copy the value of the 'aat' cookie",
         "data": {
-          "session_cookie": "Session Cookie"
+          "access_token": "Access Token (aat)"
         }
       },
       "reconfigure": {
         "title": "Reconfigure E-REDES",
         "description": "Update your E-REDES configuration.",
         "data": {
-          "session_cookie": "Session Cookie",
+          "access_token": "Access Token (aat)",
           "cpe": "CPE Code"
         }
       }
     },
     "error": {
-      "invalid_auth": "Invalid or expired session",
+      "invalid_auth": "Invalid or expired access token",
       "cannot_connect": "Cannot connect to E-REDES",
       "unknown": "An unexpected error occurred"
     },

@@ -5,11 +5,11 @@
         "title": "Conta E-REDES",
         "description": "Introduza o token e codigo CPE do Balcao Digital E-REDES.\n\nPara obter o token:\n1. Aceda a {setup_url}\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
         "data": {
-          "session_cookie": "Token AAT",
+          "access_token": "Token AAT",
           "cpe": "Codigo CPE"
         },
         "data_description": {
-          "session_cookie": "O valor do cookie 'aat' da sua sessao no browser. O cabecalho Cookie completo tambem e aceite.",
+          "access_token": "O valor do cookie 'aat' da sua sessao no browser. O cabecalho Cookie completo tambem e aceite.",
           "cpe": "O codigo CPE do seu contador (ex: PT0002000012345678XX)"
         }
       },
@@ -17,14 +17,14 @@
         "title": "Re-autenticar com E-REDES",
         "description": "A sua sessao E-REDES expirou. Por favor introduza um novo token para o CPE {cpe}.\n\nPara obter o token:\n1. Aceda a {setup_url}\n2. Abra as ferramentas de desenvolvimento (F12)\n3. Va a Application > Cookies\n4. Copie o valor do cookie 'aat'",
         "data": {
-          "session_cookie": "Token AAT"
+          "access_token": "Token AAT"
         }
       },
       "reconfigure": {
         "title": "Reconfigurar E-REDES",
         "description": "Atualize a sua configuracao E-REDES.",
         "data": {
-          "session_cookie": "Token AAT",
+          "access_token": "Token AAT",
           "cpe": "Codigo CPE"
         }
       }

@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.eredes.const import CONF_CPE, CONF_SESSION_COOKIE
+from custom_components.eredes.const import CONF_ACCESS_TOKEN, CONF_CPE
 from custom_components.eredes.eredes_api.models import (
     ConsumptionData,
     ConsumptionReading,
@@ -33,7 +33,7 @@ def expected_lingering_threads() -> bool:
 def mock_config_entry_data() -> dict:
     """Return mock config entry data."""
     return {
-        CONF_SESSION_COOKIE: "PHPSESSID=abc123; aat=mock.jwt.token; SimpleSAML=xyz789",
+        CONF_ACCESS_TOKEN: "PHPSESSID=abc123; aat=mock.jwt.token; SimpleSAML=xyz789",
         CONF_CPE: "PT0002000012345678AB",
     }
 

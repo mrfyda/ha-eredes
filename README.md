@@ -58,7 +58,7 @@ This integration requires a session token from the E-REDES portal. Due to CAPTCH
 2. Click **Add Integration**
 3. Search for "E-REDES"
 4. Enter your configuration:
-   - **Session Cookie**: The value of the `aat` cookie from your browser (the full Cookie header is also accepted)
+   - **Access Token (aat)**: The value of the `aat` cookie from your browser (the full Cookie header is also accepted)
    - **CPE Code**: Your electricity meter CPE code (e.g., `PT0002000012345678AB`)
 
 ### Token Expiration
@@ -72,13 +72,19 @@ The token will expire after some time (typically when you log out or after exten
 
 ## Energy Dashboard Setup
 
-On first setup the integration imports up to a year of historical consumption into
-Home Assistant's long-term statistics, attached to the **Daily Energy** sensor. Add that
-sensor to your Energy Dashboard:
+On first setup the integration imports up to a year of historical consumption into a
+Home Assistant long-term statistic named **E-REDES Energy (`<CPE suffix>`)**
+(id `eredes:energy_<cpe suffix>`). On later restarts it resumes from the last imported
+hour rather than re-importing the whole year. Add that statistic to your Energy
+Dashboard:
 
 1. Go to **Settings** > **Dashboards** > **Energy**
 2. Under "Grid consumption", click **Add consumption**
-3. Select the Daily Energy sensor (e.g. `sensor.e_redes_meter_my_daily_energy`)
+3. Select **E-REDES Energy (`<CPE suffix>`)**
+
+> The **Daily Energy** sensor is a live, at-a-glance entity for yesterday's total; the
+> hourly history that feeds the Energy Dashboard is the `eredes:energy_…` statistic
+> above.
 
 ## Known Limitations
 
