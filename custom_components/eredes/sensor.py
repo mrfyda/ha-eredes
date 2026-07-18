@@ -16,7 +16,7 @@ from homeassistant.const import UnitOfEnergy, UnitOfPower
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, SENSOR_ENERGY, SENSOR_POWER
 from .coordinator import ERedesCoordinator, ERedesCoordinatorData
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class ERedesSensorEntityDescription(SensorEntityDescription):
 
 SENSOR_DESCRIPTIONS: tuple[ERedesSensorEntityDescription, ...] = (
     ERedesSensorEntityDescription(
-        key="energy",
+        key=SENSOR_ENERGY,
         translation_key="energy",
         name="Daily Energy",
         device_class=SensorDeviceClass.ENERGY,
@@ -47,7 +47,7 @@ SENSOR_DESCRIPTIONS: tuple[ERedesSensorEntityDescription, ...] = (
         value_fn=lambda data: data.today_kwh,  # yesterday's data due to API delay
     ),
     ERedesSensorEntityDescription(
-        key="power",
+        key=SENSOR_POWER,
         translation_key="power",
         name="Power",
         device_class=SensorDeviceClass.POWER,
@@ -105,7 +105,7 @@ class ERedesSensor(CoordinatorEntity[ERedesCoordinator], SensorEntity):
     @property
     def last_reset(self) -> datetime | None:
         """Return the last reset time (start of yesterday for energy sensor)."""
-        if self.entity_description.key == "energy":
+        if self.entity_description.key == SENSOR_ENERGY:
             now = datetime.now(UTC)
             today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
             return today_start - timedelta(days=1)
@@ -128,7 +128,7 @@ class ERedesSensor(CoordinatorEntity[ERedesCoordinator], SensorEntity):
         }
 
         if (
-            self.entity_description.key == "power_current"
+            self.entity_description.key == SENSOR_POWER
             and self.coordinator.data.last_reading
         ):
             attrs["reading_timestamp"] = (

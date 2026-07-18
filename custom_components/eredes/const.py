@@ -23,7 +23,5 @@ TOKEN_REFRESH_MARGIN: Final = 300  # Refresh token 5 minutes before expiry
 REQUEST_TYPE_15MIN: Final = "3"  # 15-minute interval readings
 
 # Sensor keys
-SENSOR_ENERGY_TOTAL: Final = "energy_total"
-SENSOR_ENERGY_TODAY: Final = "energy_today"
-SENSOR_ENERGY_YESTERDAY: Final = "energy_yesterday"
-SENSOR_POWER_CURRENT: Final = "power_current"
+SENSOR_ENERGY: Final = "energy"
+SENSOR_POWER: Final = "power"
