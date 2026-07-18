@@ -11,7 +11,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import CONF_CPE, CONF_SESSION_COOKIE, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import CONF_ACCESS_TOKEN, CONF_CPE, DEFAULT_SCAN_INTERVAL, DOMAIN
 from .eredes_api import (
     ConsumptionData,
     ERedesAuthenticationError,
@@ -57,7 +57,7 @@ class ERedesCoordinator(DataUpdateCoordinator[ERedesCoordinatorData]):
         self._cpe: str = entry.data[CONF_CPE]
 
         session = async_get_clientsession(hass)
-        self._client = ERedesClient(session, str(entry.data[CONF_SESSION_COOKIE]))
+        self._client = ERedesClient(session, str(entry.data[CONF_ACCESS_TOKEN]))
 
     @property
     def cpe(self) -> str:
@@ -69,9 +69,9 @@ class ERedesCoordinator(DataUpdateCoordinator[ERedesCoordinatorData]):
         """Return the API client."""
         return self._client
 
-    def update_session_cookie(self, session_cookie: str) -> None:
-        """Update the session cookie in the client."""
-        self._client.update_session_cookie(session_cookie)
+    def update_access_token(self, access_token: str) -> None:
+        """Update the access token in the client."""
+        self._client.update_access_token(access_token)
 
     async def _async_update_data(self) -> ERedesCoordinatorData:
         """Fetch data from E-REDES."""
@@ -115,7 +115,7 @@ class ERedesCoordinator(DataUpdateCoordinator[ERedesCoordinatorData]):
 
         except ERedesAuthenticationError as err:
             raise ConfigEntryAuthFailed(
-                "Authentication failed - please update your session cookie"
+                "Authentication failed - please update your access token"
             ) from err
         except ERedesConnectionError as err:
             raise UpdateFailed(f"Error communicating with E-REDES: {err}") from err

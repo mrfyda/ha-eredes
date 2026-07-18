@@ -1,4 +1,4 @@
-"""Tests for the E-REDES API client session-cookie normalization."""
+"""Tests for the E-REDES API client access-token normalization."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ from custom_components.eredes.eredes_api.client import ERedesClient
 TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0In0.abc-def_ghi"
 
 
-def _make_client(session_cookie: str) -> ERedesClient:
+def _make_client(access_token: str) -> ERedesClient:
     """Build a client with a stub session (the session is unused by headers)."""
-    return ERedesClient(MagicMock(), session_cookie)
+    return ERedesClient(MagicMock(), access_token)
 
 
 @pytest.mark.parametrize(
-    "session_cookie",
+    "access_token",
     [
         pytest.param(TOKEN, id="bare-value"),
         pytest.param(f"aat={TOKEN}", id="prefixed"),
@@ -27,9 +27,9 @@ def _make_client(session_cookie: str) -> ERedesClient:
         pytest.param(f"  aat={TOKEN} ; ", id="prefixed-whitespace-and-semicolon"),
     ],
 )
-def test_aat_token_normalized_from_various_shapes(session_cookie: str) -> None:
+def test_aat_token_normalized_from_various_shapes(access_token: str) -> None:
     """Bare, prefixed and whitespace/semicolon-padded inputs all yield the token."""
-    client = _make_client(session_cookie)
+    client = _make_client(access_token)
     headers = client._get_headers()
 
     assert client._aat_token == TOKEN
@@ -62,12 +62,12 @@ def test_full_cookie_header_with_trailing_whitespace_and_semicolon() -> None:
     assert "SimpleSAML=xyz789" in headers["Cookie"]
 
 
-def test_update_session_cookie_applies_normalization() -> None:
-    """update_session_cookie normalizes a bare token just like construction."""
+def test_update_access_token_applies_normalization() -> None:
+    """update_access_token normalizes a bare token just like construction."""
     client = _make_client(f"aat={TOKEN}")
     new_token = "newheader.newpayload.newsig"
 
-    client.update_session_cookie(new_token)
+    client.update_access_token(new_token)
     headers = client._get_headers()
 
     assert client._aat_token == new_token

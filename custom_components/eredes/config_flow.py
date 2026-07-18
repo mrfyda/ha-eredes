@@ -15,14 +15,14 @@ from homeassistant.config_entries import (
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import BASE_URL, CONF_CPE, CONF_SESSION_COOKIE, DOMAIN
+from .const import BASE_URL, CONF_ACCESS_TOKEN, CONF_CPE, DOMAIN
 from .eredes_api import ERedesAuthenticationError, ERedesClient, ERedesConnectionError
 
 _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_SESSION_COOKIE): str,
+        vol.Required(CONF_ACCESS_TOKEN): str,
         vol.Required(CONF_CPE): str,
     }
 )
@@ -31,7 +31,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for E-REDES."""
 
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -50,7 +50,7 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
 
             # Test the credentials
             error = await self._test_credentials(
-                user_input[CONF_SESSION_COOKIE], user_input[CONF_CPE]
+                user_input[CONF_ACCESS_TOKEN], user_input[CONF_CPE]
             )
 
             if error:
@@ -85,18 +85,18 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             assert self._reauth_entry is not None
 
             error = await self._test_credentials(
-                user_input[CONF_SESSION_COOKIE], self._reauth_entry.data[CONF_CPE]
+                user_input[CONF_ACCESS_TOKEN], self._reauth_entry.data[CONF_CPE]
             )
 
             if error:
                 errors["base"] = error
             else:
-                # Update the config entry with new cookie
+                # Update the config entry with the new access token
                 self.hass.config_entries.async_update_entry(
                     self._reauth_entry,
                     data={
                         **self._reauth_entry.data,
-                        CONF_SESSION_COOKIE: user_input[CONF_SESSION_COOKIE],
+                        CONF_ACCESS_TOKEN: user_input[CONF_ACCESS_TOKEN],
                     },
                 )
                 await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
@@ -106,7 +106,7 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="reauth_confirm",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_SESSION_COOKIE): str,
+                    vol.Required(CONF_ACCESS_TOKEN): str,
                 }
             ),
             errors=errors,
@@ -133,7 +133,7 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
 
             # Test credentials
             error = await self._test_credentials(
-                user_input[CONF_SESSION_COOKIE], user_input[CONF_CPE]
+                user_input[CONF_ACCESS_TOKEN], user_input[CONF_CPE]
             )
 
             if error:
@@ -152,8 +152,8 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_SESSION_COOKIE,
-                        default=entry.data.get(CONF_SESSION_COOKIE) if entry else "",
+                        CONF_ACCESS_TOKEN,
+                        default=entry.data.get(CONF_ACCESS_TOKEN) if entry else "",
                     ): str,
                     vol.Required(
                         CONF_CPE,
@@ -164,13 +164,13 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def _test_credentials(self, session_cookie: str, cpe: str) -> str | None:
+    async def _test_credentials(self, access_token: str, cpe: str) -> str | None:
         """Test if the credentials are valid.
 
         Returns an error key if validation fails, None if successful.
         """
         session = async_get_clientsession(self.hass)
-        client = ERedesClient(session, session_cookie)
+        client = ERedesClient(session, access_token)
 
         try:
             valid = await client.validate_token(cpe)
