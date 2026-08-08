@@ -34,19 +34,31 @@ _Avoid_: "measurement", "sample".
 ## Authentication
 
 **Access token (`aat`)**:
-The JWT credential minted at login and the **primary** authenticator — a bare `aat`,
-with no other cookies, authorizes an API call on its own. Has a fixed lifetime and is
-**not** re-issued in responses, so it cannot be refreshed without logging in again.
+The JWT credential minted at login. Carries a hard `exp` claim **91 minutes** after
+issue, and is **never** re-issued — not by `/session`, not by page loads, not by the
+portal's own `token-check` or `reserved-area-token` endpoints. It therefore cannot be
+refreshed without logging in again. Travels in the `Cookie` header; the data endpoint
+equally accepts it as `Authorization: Bearer`.
 _Avoid_: "session cookie", bare "token" (both are ambiguous — see below).
+
+**Bot gate (`Authorization-Request`)**:
+A header the portal fills with a **reCAPTCHA token**, checked independently of the
+credential. On `/ms/*` data endpoints the gateway only verifies the header is
+*present*, so this integration passes the `aat` there; on signin it validates a real
+token, which is why login cannot be automated. A request carrying a valid credential
+but no `Authorization-Request` is refused with `403` and a `recaptcha: true` response
+header. See `docs/adr/0003`.
+_Avoid_: reading the name as "authorization" — it authorizes nothing.
 
 **Server session (`PHPSESSID`)**:
 A **secondary** cookie the server issues and rolls on every response (90-minute
 sliding window). It rides along with requests and is bootstrapped even from a
-bare-`aat` first call, but it is not the primary authenticator — keeping it fresh does
-not extend access past the access token's expiry.
+bare-`aat` first call, but it is not a credential — keeping it fresh does not extend
+access past the access token's expiry.
 _Avoid_: bare "session" (collides with the aiohttp HTTP client session).
 
 **Login**:
-The interactive, browser-based sign-in that mints an `aat`. It is protected by Google
-reCAPTCHA Enterprise and therefore cannot be automated — the reason the `aat` is pasted
-in by hand rather than obtained programmatically.
+The interactive, browser-based sign-in that mints an `aat`. Protected by Google
+reCAPTCHA and therefore not automatable — the reason the `aat` is pasted in by hand.
+The E-REDES mobile app offers no way around this: it is a Capacitor shell that loads
+this same web portal in a WebView (see `docs/adr/0001`).
