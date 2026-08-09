@@ -173,7 +173,7 @@ def _aggregate_to_hourly_statistics(
     """Aggregate 15-minute readings to hourly statistics.
 
     Args:
-        readings: 15-minute interval readings (timestamps are naive UTC).
+        readings: 15-minute interval readings (timestamps are aware UTC).
         initial_sum: cumulative sum of previously imported hours; the returned
             stats continue from here so the series stays monotonic across runs.
         after: if set, hours at or before this instant are skipped (they were
@@ -190,10 +190,11 @@ def _aggregate_to_hourly_statistics(
     hourly_data: dict[datetime, float] = {}
 
     for reading in readings:
-        # Round down to the start of the hour and make timezone-aware (UTC)
-        hour_start = reading.timestamp.replace(
-            minute=0, second=0, microsecond=0, tzinfo=UTC
-        )
+        # Timestamps arrive as aware UTC (converted from Lisbon local time at
+        # parse time), so this only truncates — stamping tzinfo here would
+        # reinterpret a local wall clock as UTC and shift every summer reading
+        # an hour late.
+        hour_start = reading.timestamp.replace(minute=0, second=0, microsecond=0)
 
         if after is not None and hour_start <= after:
             continue

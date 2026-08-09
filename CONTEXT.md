@@ -26,9 +26,26 @@ _Avoid_: "channel", "direction".
 The time series of energy per fixed 15-minute interval for one register, as returned
 by the `edm/get` endpoint (`meterLoadCurves` → `loadCurves`).
 
+Timestamps are **Europe/Lisbon local time carrying a misleading `Z` suffix** — they
+are *not* UTC. Verified on 2026-08-09: the spring-forward day `2026-03-29` returns 92
+points with the 01:00–01:59 hour absent (00:45 jumps to 02:00), and the fall-back day
+`2025-10-26` returns 100 points with 01:00/01:15/01:30/01:45 each appearing twice.
+True UTC would be a flat 96 every day. Treating the suffix at face value shifts all
+WEST-period (summer) data one hour late, and collapses the two ambiguous fall-back
+hours into one bucket. See `docs/adr/0004`.
+
 **Reading**:
 A single load-curve point — the energy consumed (or exported) during one 15-minute
-interval. Carries an optional `meterLoadCurveStatus` data-quality flag.
+interval. Carries an optional `meterLoadCurveStatus` flag taking values `0`, `1`, `2`
+or no value at all.
+
+That flag does **not** separate real readings from estimates, and must not be filtered
+on. Verified on 2026-08-09 against `request_type=1` (the cumulative meter index, the
+physical register): summing *every* load-curve point reproduces the index delta to
+within its 1 kWh quantization across five independent multi-week spans (99.5%–101.2%).
+Keeping only status `0` yields 0%–27% of true consumption; keeping `0` and unflagged
+yields 0%–86%. One 14-day span carried status `1` on 1343 of 1344 points, so any such
+filter would have silently discarded the entire period.
 _Avoid_: "measurement", "sample".
 
 ## Authentication

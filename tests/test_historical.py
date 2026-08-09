@@ -16,9 +16,13 @@ CPE = "PT0002000012345678AB"
 
 
 def _reading(hour: int, minute: int, value_wh: float) -> ConsumptionReading:
-    """Build a naive-UTC 15-minute reading on 2026-01-01."""
+    """Build an aware-UTC 15-minute reading on 2026-01-01.
+
+    The client converts Lisbon local time to UTC at parse time, so the
+    aggregator only ever sees timezone-aware readings.
+    """
     return ConsumptionReading(
-        timestamp=datetime(2026, 1, 1, hour, minute),
+        timestamp=datetime(2026, 1, 1, hour, minute, tzinfo=UTC),
         value_wh=value_wh,
     )
 

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from http.cookies import SimpleCookie
 from typing import TYPE_CHECKING, Any
+from zoneinfo import ZoneInfo
 
 from .exceptions import ERedesAuthenticationError, ERedesConnectionError, ERedesError
 from .models import ConsumptionData, ConsumptionReading
@@ -18,6 +19,35 @@ _LOGGER = logging.getLogger(__name__)
 
 BASE_URL = "https://balcaodigital.e-redes.pt"
 API_URL = f"{BASE_URL}/ms/reading/data-usage/edm/get"
+
+# Load-curve timestamps are Lisbon wall-clock time despite their ``Z`` suffix.
+LISBON = ZoneInfo("Europe/Lisbon")
+
+
+def _to_utc_series(timestamps: list[datetime]) -> list[datetime]:
+    """Convert naive Europe/Lisbon wall-clock timestamps to aware UTC.
+
+    E-REDES labels load-curve timestamps with a ``Z`` but reports local Lisbon
+    time (see CONTEXT.md → Load curve), so the UTC offset changes across DST.
+
+    The autumn transition repeats one wall-clock hour, and the API returns both
+    copies. The first occurrence of a repeated value is read as the
+    pre-transition (WEST, UTC+1) reading and the second as post-transition
+    (WET, UTC+0) — correct as long as the series arrives in chronological
+    order, which is the only ordering that makes the duplicates meaningful.
+    Without this, both copies collapse onto the same instant and one hour of
+    consumption is double-counted into the other.
+
+    The spring transition needs no handling: the skipped hour simply has no
+    readings, leaving a gap that closes naturally in UTC.
+    """
+    seen: set[datetime] = set()
+    utc_timestamps: list[datetime] = []
+    for naive in timestamps:
+        local = naive.replace(tzinfo=LISBON, fold=1 if naive in seen else 0)
+        seen.add(naive)
+        utc_timestamps.append(local.astimezone(UTC))
+    return utc_timestamps
 
 
 class ERedesClient:
@@ -253,27 +283,34 @@ class ERedesClient:
                         continue
 
                     load_curves = group.get("loadCurves", [])
+                    # Collect the group's series before converting: resolving
+                    # the repeated autumn hour needs the readings in order,
+                    # not one timestamp at a time.
+                    local_timestamps: list[datetime] = []
+                    values_wh: list[float] = []
                     for curve in load_curves:
                         timestamp_str = curve.get("loadCurveTimestamp")
                         value = curve.get("meterLoadCurve")
                         unit = curve.get("meterLoadCurveUnitMeasurement", "").lower()
 
                         if timestamp_str and value is not None:
-                            # Parse timestamp (ISO format with Z)
+                            # Naive Lisbon wall clock — the trailing Z is a lie
                             timestamp = self._parse_timestamp(timestamp_str)
                             if timestamp:
                                 # Value is in kWh, convert to Wh for internal use
-                                value_wh = (
+                                values_wh.append(
                                     float(value) * 1000
                                     if unit == "kwh"
                                     else float(value)
                                 )
-                                readings.append(
-                                    ConsumptionReading(
-                                        timestamp=timestamp,
-                                        value_wh=value_wh,
-                                    )
-                                )
+                                local_timestamps.append(timestamp)
+
+                    readings.extend(
+                        ConsumptionReading(timestamp=timestamp, value_wh=value_wh)
+                        for timestamp, value_wh in zip(
+                            _to_utc_series(local_timestamps), values_wh, strict=True
+                        )
+                    )
 
         except (KeyError, TypeError, ValueError) as ex:
             _LOGGER.exception("Error parsing consumption response: %s", ex)
@@ -289,7 +326,12 @@ class ERedesClient:
         )
 
     def _parse_timestamp(self, timestamp_str: str) -> datetime | None:
-        """Parse timestamp from ISO format string."""
+        """Parse a load-curve timestamp into a naive Lisbon wall-clock time.
+
+        The ``Z`` suffix is stripped by the format, not honoured: these are
+        local times (see ``_to_utc_series``). The result stays naive; the
+        caller converts the series to UTC once it has the readings in order.
+        """
         formats = [
             "%Y-%m-%dT%H:%M:%SZ",
             "%Y-%m-%dT%H:%M:%S",
