@@ -6,8 +6,8 @@
 # list those packages here: pinning them independently produces a
 # ResolutionImpossible conflict. Bump this single package to move the whole
 # stack to a newer HA version. (See the Dependabot ignore list in dependabot.yml.)
-pytest-homeassistant-custom-component>=0.13.348
+pytest-homeassistant-custom-component>=0.13.356
 
 # Linting and type checking — not part of the HA test snapshot, so ours to bump.
-ruff>=0.16.0
-mypy>=2.3.0
+ruff>=0.16.3
+mypy>=2.3.1
