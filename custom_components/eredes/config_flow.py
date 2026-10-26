@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import voluptuous as vol
@@ -15,7 +16,14 @@ from homeassistant.config_entries import (
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import BASE_URL, CONF_ACCESS_TOKEN, CONF_CPE, DOMAIN
+from .const import (
+    BASE_URL,
+    CONF_ACCESS_TOKEN,
+    CONF_CPE,
+    DOMAIN,
+    TOKEN_EXPIRY_MARGIN_SECONDS,
+    TOKEN_ISSUER,
+)
 from .eredes_api import ERedesAuthenticationError, ERedesClient, ERedesConnectionError
 
 _LOGGER = logging.getLogger(__name__)
@@ -84,7 +92,8 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             assert self._reauth_entry is not None
 
-            error = await self._test_credentials(
+            # The CPE is already known to be valid: only the token changes.
+            error = await self._check_renewed_token(
                 user_input[CONF_ACCESS_TOKEN], self._reauth_entry.data[CONF_CPE]
             )
 
@@ -99,7 +108,9 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_ACCESS_TOKEN: user_input[CONF_ACCESS_TOKEN],
                     },
                 )
-                await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
+                self.hass.config_entries.async_schedule_reload(
+                    self._reauth_entry.entry_id
+                )
                 return self.async_abort(reason="reauth_successful")
 
         return self.async_show_form(
@@ -131,10 +142,16 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(user_input[CONF_CPE])
                 self._abort_if_unique_id_configured()
 
-            # Test credentials
-            error = await self._test_credentials(
-                user_input[CONF_ACCESS_TOKEN], user_input[CONF_CPE]
-            )
+            # A new CPE needs the full check against E-Redes; a token renewal
+            # for the same CPE only needs the local check.
+            if user_input[CONF_CPE] != entry.data[CONF_CPE]:
+                error = await self._test_credentials(
+                    user_input[CONF_ACCESS_TOKEN], user_input[CONF_CPE]
+                )
+            else:
+                error = await self._check_renewed_token(
+                    user_input[CONF_ACCESS_TOKEN], user_input[CONF_CPE]
+                )
 
             if error:
                 errors["base"] = error
@@ -144,7 +161,7 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
                     title=f"E-REDES ({user_input[CONF_CPE][-8:]})",
                     data=user_input,
                 )
-                await self.hass.config_entries.async_reload(entry.entry_id)
+                self.hass.config_entries.async_schedule_reload(entry.entry_id)
                 return self.async_abort(reason="reconfigure_successful")
 
         return self.async_show_form(
@@ -163,6 +180,35 @@ class ERedesConfigFlow(ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
         )
+
+    async def _check_renewed_token(self, access_token: str, cpe: str) -> str | None:
+        """Check a renewed token quickly.
+
+        E-Redes' data endpoint takes over a minute to answer an accepted token,
+        which made token renewal slow; the reload after saving also did a full
+        fetch while the flow waited. Instead: check the aat JWT's issuer and
+        expiry locally, then ask E-Redes whether it accepts the token with a
+        request that fetches no data and a short timeout (see
+        ERedesClient.check_token).
+
+        Returns an error key if the token is not usable, None otherwise.
+        """
+        client = ERedesClient(async_get_clientsession(self.hass), access_token)
+        claims = client.token_claims()
+        if claims is None or claims.get("iss") != TOKEN_ISSUER:
+            return "invalid_auth"
+        exp = claims.get("exp")
+        if not isinstance(exp, int | float) or exp <= (
+            time.time() + TOKEN_EXPIRY_MARGIN_SECONDS
+        ):
+            return "invalid_auth"
+        try:
+            await client.check_token(cpe)
+        except ERedesAuthenticationError:
+            return "invalid_auth"
+        except ERedesConnectionError:
+            return "cannot_connect"
+        return None
 
     async def _test_credentials(self, access_token: str, cpe: str) -> str | None:
         """Test if the credentials are valid.

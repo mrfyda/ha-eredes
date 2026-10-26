@@ -24,3 +24,9 @@ REQUEST_TYPE_15MIN: Final = "3"  # 15-minute interval readings
 # Sensor keys
 SENSOR_ENERGY: Final = "energy"
 SENSOR_POWER: Final = "power"
+
+# Renewed tokens are checked locally (see config_flow._check_token_locally):
+# the aat JWT must come from E-Redes' auth service and not expire within the
+# margin below. E-Redes' data endpoint is too slow (60+ s) to validate with.
+TOKEN_ISSUER: Final = "msauth-jwt"
+TOKEN_EXPIRY_MARGIN_SECONDS: Final = 60

@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import asyncio
+import base64
+import binascii
+import json
 import logging
 import re
 from datetime import UTC, datetime
 from http.cookies import SimpleCookie
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
+
+import aiohttp
 
 from .exceptions import ERedesAuthenticationError, ERedesConnectionError, ERedesError
 from .models import ConsumptionData, ConsumptionReading
@@ -16,6 +22,10 @@ if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 _LOGGER = logging.getLogger(__name__)
+
+# E-Redes answers a rejected token at once (401) but takes up to a minute or
+# more before answering an accepted one, so this is enough to tell them apart.
+TOKEN_CHECK_TIMEOUT_SECONDS = 5
 
 BASE_URL = "https://balcaodigital.e-redes.pt"
 API_URL = f"{BASE_URL}/ms/reading/data-usage/edm/get"
@@ -107,6 +117,70 @@ class ERedesClient:
         """Serialize a cookies dict into a Cookie request header."""
         return "; ".join(f"{k}={v}" for k, v in cookies.items())
 
+    @staticmethod
+    def _consumption_payload(cpe: str, start: str, end: str) -> dict[str, Any]:
+        """Build the body of a consumption request (15-minute readings)."""
+        return {
+            "cpe": cpe,
+            "request_type": "3",  # 15-minute interval readings
+            "start_date": start,
+            "end_date": end,
+            "wait": True,
+            "formatted": False,
+            "nif_requester": None,
+            "serial_number": "",
+            "nif": None,
+        }
+
+    async def check_token(
+        self, cpe: str, timeout: float = TOKEN_CHECK_TIMEOUT_SECONDS
+    ) -> None:
+        """Ask E-Redes whether it accepts the token, within ``timeout`` seconds.
+
+        Sends a consumption request with a reversed date range, so there is no
+        data to fetch. E-Redes rejects a bad token immediately (401/403); for
+        an accepted token it goes on to its data backend, which can take over a
+        minute, so no answer within ``timeout`` means the token was accepted.
+
+        Raises:
+            ERedesAuthenticationError: E-Redes rejected the token.
+            ERedesConnectionError: E-Redes could not be reached or failed.
+        """
+        payload = self._consumption_payload(
+            cpe, "2000-01-02 00:00:00", "2000-01-01 00:00:00"
+        )
+        try:
+            async with asyncio.timeout(timeout):
+                async with self._session.post(
+                    API_URL, json=payload, headers=self._get_headers()
+                ) as response:
+                    status = response.status
+        except TimeoutError:
+            return
+        except aiohttp.ClientError as ex:
+            raise ERedesConnectionError(f"Failed to reach E-Redes: {ex}") from ex
+        if status in (401, 403):
+            raise ERedesAuthenticationError("Token rejected by E-Redes")
+        if status != 200:
+            raise ERedesConnectionError(f"Unexpected status {status} from E-Redes")
+
+    def token_claims(self) -> dict[str, Any] | None:
+        """Decode the aat JWT payload without verifying its signature.
+
+        Used for a cheap local check (issuer, expiry) before trusting a renewed
+        token; E-Redes still verifies it on the first API call. Returns None
+        when the value is not a JWT.
+        """
+        parts = self._aat_token.split(".")
+        if len(parts) != 3:
+            return None
+        try:
+            payload = base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4))
+            claims = json.loads(payload)
+        except ValueError, binascii.Error:
+            return None
+        return claims if isinstance(claims, dict) else None
+
     def update_access_token(self, access_token: str) -> None:
         """Update the access token."""
         self._apply_access_token(access_token)
@@ -176,17 +250,7 @@ class ERedesClient:
         start_str = start_date.strftime("%Y-%m-%d %H:%M:%S")
         end_str = end_date.strftime("%Y-%m-%d %H:%M:%S")
 
-        payload = {
-            "cpe": cpe,
-            "request_type": "3",  # 15-minute interval readings
-            "start_date": start_str,
-            "end_date": end_str,
-            "wait": True,
-            "formatted": False,
-            "nif_requester": None,
-            "serial_number": "",
-            "nif": None,
-        }
+        payload = self._consumption_payload(cpe, start_str, end_str)
 
         try:
             async with self._session.post(
